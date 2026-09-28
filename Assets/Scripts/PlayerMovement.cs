@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform orientation;
     [SerializeField] private InputActionAsset inputs;
     [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float moveSpeed;
+    [SerializeField] private float moveSpeed = 5;
     private float verticalVelocity;
 
     void Start()

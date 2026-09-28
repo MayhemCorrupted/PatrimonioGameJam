@@ -3,16 +3,15 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
-    [SerializeField] Transform cameraTransform;
     CinemachineInputAxisController axisController;
     [SerializeField] private float mouseSensitivity = 1f;
-    private void Awake()
+    void Awake()
     {
+        axisController = GetComponentInChildren<CinemachineInputAxisController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        axisController = GetComponentInChildren<CinemachineInputAxisController>();
     }
-    private void Update()
+    void Update()
     {
         SetSensibility();
     }

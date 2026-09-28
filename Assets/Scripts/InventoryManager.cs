@@ -1,0 +1,65 @@
+using System;
+using UnityEngine;
+
+public class InventoryManager : MonoBehaviour
+{
+    public static InventoryManager Instance { get; private set; }
+    private const int MAX_SLOTS = 3;
+    readonly ItemData[] dataItem = new ItemData[MAX_SLOTS];
+    private int itemCount = 0;
+    public event Action OnInventoryChanged;
+    public int MaxSlots => MAX_SLOTS;
+    public int ItemCount => itemCount;
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+    public bool AddItem(ItemData item)
+    {
+        if (itemCount >= MAX_SLOTS) return false;
+        dataItem[itemCount] = item;
+        itemCount++;
+        if (EquipmentManager.Instance != null && EquipmentManager.Instance.CurrentEquippedItem == null) EquipmentManager.Instance.EquipItem(item);
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+    public void RemoveItem(ItemData item)
+    {
+        for (int i = 0; i < itemCount; i++)
+        {
+            if (dataItem[i] == item)
+            {
+                if (EquipmentManager.Instance != null && EquipmentManager.Instance.CurrentEquippedItem == item) EquipmentManager.Instance.Unequip();
+                for (int j = i; j < itemCount - 1; j++) dataItem[j] = dataItem[j + 1];
+                dataItem[itemCount - 1] = null;
+                itemCount--;
+                OnInventoryChanged?.Invoke();
+                return;
+            }
+
+        }
+    }
+    public ItemData GetItem(int index)
+    {
+        return (index >= 0 && index < itemCount) ? dataItem[index] : null;
+    }
+    public ItemData[] GetAllItems()
+    {
+        ItemData[] currentItems = new ItemData[itemCount];
+        Array.Copy(dataItem, 0, currentItems, 0, itemCount);
+        return currentItems;
+    }
+    public void ClearInventory()
+    {
+        Array.Clear(dataItem, 0, MAX_SLOTS);
+        itemCount = 0;
+        OnInventoryChanged?.Invoke();
+    }
+    public bool IsFull() => itemCount >= MAX_SLOTS;
+    public bool IsEmpty() => itemCount == 0;
+}

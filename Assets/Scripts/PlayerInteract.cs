@@ -48,7 +48,7 @@ public class PlayerInteract : MonoBehaviour
     }
     void OnDrawGizmos()
     {
-        if (interactPosition == null) return;
+        if (interactPosition == null && !showGizmo) return;
         Vector3 origin = interactPosition.position;
         Vector3 direction = interactPosition.forward;
 
