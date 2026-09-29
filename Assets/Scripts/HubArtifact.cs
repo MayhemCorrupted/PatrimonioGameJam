@@ -3,18 +3,22 @@ using UnityEngine;
 public class HubArtifact : MonoBehaviour, IInteractable
 {
     public ItemData itemData;
-    [SerializeField] private GameObject artifactMesh; 
-    [SerializeField] private GameObject emptyFrameMesh; 
-    [SerializeField] private GameObject glowEffect; 
+    [SerializeField] private GameObject map;
+    [SerializeField] private GameObject emptyFrame;
+    [SerializeField] private GameObject completedMap;
+
+    private bool isCompleted = false;
 
     public void Interact()
     {
+        if (isCompleted) return;
+
         if (InventoryManager.Instance.AddItem(itemData))
         {
             AudioManager.Instance.PlayObjectMusic(itemData.objectTrack);
 
-            artifactMesh.SetActive(false);
-            emptyFrameMesh.SetActive(true);
+            map.SetActive(false);
+            emptyFrame.SetActive(true);
 
             GetComponent<Collider>().enabled = false;
         }
@@ -22,6 +26,8 @@ public class HubArtifact : MonoBehaviour, IInteractable
 
     public void CompleteArtifact()
     {
-        glowEffect.SetActive(true);
+        isCompleted = true;
+        GetComponent<Collider>().enabled = false;
+        completedMap.SetActive(true);
     }
 }

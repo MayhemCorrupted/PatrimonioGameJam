@@ -91,7 +91,7 @@ public class AnimationManager : MonoBehaviour
     }
 
     private void HandleUITiltEffect()
-    {
+    {   
         if (cameraTransform == null) return;
 
         float pitch = cameraTransform.localEulerAngles.x;

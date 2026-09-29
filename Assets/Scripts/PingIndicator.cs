@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class PingIndicator : MonoBehaviour
 {
+    [Header("Validación de Item")]
+    [Tooltip("El ItemData exacto que debe estar equipado para que ESTE efecto se active")]
+    [SerializeField] private ItemData associatedItem;
+
     [Header("Configuración de Entradas")]
     [SerializeField] private InputActionAsset inputs;
     private InputAction pingAction;
@@ -14,13 +18,23 @@ public class PingIndicator : MonoBehaviour
     [SerializeField] private int maxUses = 4;
     private int currentUses = 0;
 
-    [Header("Visuales del Destello (Ping)")]
-    [SerializeField] private RectTransform pingVisual;
-    [SerializeField] private CanvasGroup pingCanvasGroup;
-    [Tooltip("El componente de imagen que cambiará de color")]
-    [SerializeField] private Image pingImage;
+    private bool isPingActive = false;
+
+    [Header("Visuales del Destello 3D (Ping)")]
+    [Tooltip("El Transform del objeto principal que escalará en el mundo")]
+    [SerializeField] private Transform pingObject;
+
+    [Tooltip("El Transform del objeto separado que ROTARÁ apuntando a la tumba")]
+    [SerializeField] private Transform pointerTransform;
+
+    [Tooltip("El Renderer del objeto 3D para cambiar su color y transparencia")]
+    [SerializeField] private Renderer pingRenderer;
     [SerializeField] private float expandDuration = 0.5f;
     [SerializeField] private Vector3 maxScale = new Vector3(2f, 2f, 2f);
+
+    [Header("UI Adicional")]
+    [Tooltip("La imagen en el Canvas que también cambiará de color")]
+    [SerializeField] private Image uiPingImage;
 
     [Header("Colores por Desgaste")]
     [Tooltip("Colores que tomará el ping según el daño. Índice 0 = 1 uso.")]
@@ -29,11 +43,31 @@ public class PingIndicator : MonoBehaviour
     [Header("Referencias de Entorno")]
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform targetTombPlaceholder;
+
+    private Material pingMaterial;
+    private Transform mainCameraTransform;
+
+    private float originalUIAlpha = 1f;
     void Awake()
     {
         if (inputs != null)
         {
             pingAction = inputs.FindAction("Ping");
+        }
+
+        if (pingRenderer != null)
+        {
+            pingMaterial = pingRenderer.material;
+        }
+
+        if (Camera.main != null)
+        {
+            mainCameraTransform = Camera.main.transform;
+        }
+
+        if (uiPingImage != null)
+        {
+            originalUIAlpha = uiPingImage.color.a;
         }
     }
     void OnEnable()
@@ -53,10 +87,10 @@ public class PingIndicator : MonoBehaviour
     }
     private void TryActivatePing()
     {
-        if (EquipmentManager.Instance == null || EquipmentManager.Instance.CurrentEquippedItem == null)
-        {
-            return;
-        }
+        if (EquipmentManager.Instance == null || EquipmentManager.Instance.CurrentEquippedItem == null) return;
+        if (EquipmentManager.Instance.CurrentEquippedItem != associatedItem) return;
+
+        if (isPingActive) return;
 
         currentUses++;
 
@@ -66,9 +100,22 @@ public class PingIndicator : MonoBehaviour
             return;
         }
 
-        if (pingImage != null && damageColors.Length >= currentUses)
+        if (damageColors.Length >= currentUses)
         {
-            pingImage.color = damageColors[currentUses - 1];
+            Color newColor = damageColors[currentUses - 1];
+
+            if (pingMaterial != null)
+            {
+                newColor.a = 1f;
+                pingMaterial.color = newColor;
+            }
+
+            if (uiPingImage != null)
+            {
+                Color uiColor = newColor;
+                uiColor.a = originalUIAlpha;
+                uiPingImage.color = uiColor;
+            }
         }
 
         StartCoroutine(PingAnimationCoroutine());
@@ -81,33 +128,52 @@ public class PingIndicator : MonoBehaviour
     }
     private IEnumerator PingAnimationCoroutine()
     {
-        pingVisual.gameObject.SetActive(true);
-        pingVisual.localScale = Vector3.zero;
-        if (pingCanvasGroup != null) pingCanvasGroup.alpha = 1f;
+        isPingActive = true;
 
-        if (targetTombPlaceholder != null && playerTransform != null)
-        {
-            Vector3 direction = (targetTombPlaceholder.position - playerTransform.position).normalized;
-            float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
-            pingVisual.localRotation = Quaternion.Euler(0, 0, angle);
-        }
+        pingObject.gameObject.SetActive(true);
+        pingObject.localScale = Vector3.zero;
 
         float elapsedTime = 0f;
+        Color currentColor = pingMaterial != null ? pingMaterial.color : Color.white;
 
         while (elapsedTime < expandDuration)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / expandDuration;
 
-            pingVisual.localScale = Vector3.Lerp(Vector3.zero, maxScale, t);
+            if (pingObject != null && mainCameraTransform != null)
+            {
+                Vector3 faceDirection = pingObject.position - mainCameraTransform.position;
+                if (faceDirection.sqrMagnitude > 0.001f)
+                {
+                    pingObject.rotation = Quaternion.LookRotation(faceDirection);
+                }
+            }
 
-            if (pingCanvasGroup != null)
-                pingCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
+            if (pointerTransform != null && targetTombPlaceholder != null)
+            {
+                Vector3 dirToTarget = targetTombPlaceholder.position - pointerTransform.position;
+                dirToTarget.y = 0f;
+
+                if (dirToTarget.sqrMagnitude > 0.001f)
+                {
+                    pointerTransform.rotation = Quaternion.LookRotation(dirToTarget);
+                }
+            }
+
+            pingObject.localScale = Vector3.Lerp(Vector3.zero, maxScale, t);
+
+            if (pingMaterial != null)
+            {
+                currentColor.a = Mathf.Lerp(1f, 0f, t);
+                pingMaterial.color = currentColor;
+            }
 
             yield return null;
         }
 
-        pingVisual.gameObject.SetActive(false);
+        pingObject.gameObject.SetActive(false);
+        isPingActive = false;
     }
     private void TriggerGameOver()
     {
@@ -119,5 +185,19 @@ public class PingIndicator : MonoBehaviour
     public void ResetPing()
     {
         currentUses = 0;
+
+        if (damageColors.Length > 0 && pingMaterial != null)
+        {
+            Color matColor = damageColors[0];
+            matColor.a = 0f;
+            pingMaterial.color = matColor;
+        }
+
+        if (uiPingImage != null)
+        {
+            Color uiColor = Color.white;
+            uiColor.a = originalUIAlpha;
+            uiPingImage.color = uiColor;
+        }
     }
 }

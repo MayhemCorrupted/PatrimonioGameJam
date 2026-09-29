@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class Tomb : MonoBehaviour, IInteractable
 {
-    [SerializeField] private int requiredItemId;
-    [SerializeField] private HubArtifact linkedHubArtifact; 
+    [SerializeField] private ItemData requiredItem;
+    [SerializeField] private HubArtifact linkedHubArtifact;
     [SerializeField] private PingIndicator pingSystem;
     public void Interact()
     {
         ItemData currentItem = EquipmentManager.Instance.CurrentEquippedItem;
 
-        if (currentItem != null && currentItem.id == requiredItemId)
+        if (currentItem != null && currentItem == requiredItem)
         {
             InventoryManager.Instance.RemoveItem(currentItem);
 
