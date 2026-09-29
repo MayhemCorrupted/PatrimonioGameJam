@@ -11,7 +11,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float moveSpeed = 5;
     private float verticalVelocity;
-
     void Start()
     {
         cameraTransform = GetComponentInChildren<CinemachineCamera>().transform;

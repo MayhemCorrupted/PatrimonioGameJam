@@ -29,14 +29,14 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
-        if (Physics.Raycast(interactPosition.position, interactPosition.forward, out RaycastHit hit,interactRange, interactLayer))
+        if (Physics.Raycast(interactPosition.position, interactPosition.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
 
             if (interactable != null) currentInteract = interactable;
             else currentInteract = null;
         }
-        currentInteract = null;
+        else currentInteract = null;
     
     }
     void InteractInput()

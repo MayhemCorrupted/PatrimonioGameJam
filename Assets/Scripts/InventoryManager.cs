@@ -4,7 +4,7 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
-    private const int MAX_SLOTS = 3;
+    private const int MAX_SLOTS = 1;
     readonly ItemData[] dataItem = new ItemData[MAX_SLOTS];
     private int itemCount = 0;
     public event Action OnInventoryChanged;

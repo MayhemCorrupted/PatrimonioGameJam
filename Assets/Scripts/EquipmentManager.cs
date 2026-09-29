@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EquipmentManager : MonoBehaviour
 {
     public static EquipmentManager Instance { get; private set; }
-    [SerializeField] Transform handPoint;
+    [SerializeField] Image handPoint;
     GameObject currentEquipedModel;
     ItemData currentData;
     public ItemData CurrentEquippedItem => currentData;
@@ -18,18 +19,25 @@ public class EquipmentManager : MonoBehaviour
     }
     public void EquipItem(ItemData item)
     {
-        if (item.itemModelPrefab == null) return;
         Unequip();
         currentData = item;
-        currentEquipedModel = Instantiate(item.itemModelPrefab, handPoint);
-        currentEquipedModel.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        if (handPoint != null)
+        {
+            handPoint.sprite = item.icon;
+            currentEquipedModel = new GameObject(item.itemName);
+        }
+
     }
     public void Unequip()
     {
-        if (currentEquipedModel != null)
+        if (currentData != null) 
         {
-            Destroy(currentEquipedModel);
-            currentEquipedModel = null;
+            if (handPoint != null) handPoint.sprite = null;
+
+            if (currentEquipedModel != null)
+            {
+                currentEquipedModel = null;
+            }
             currentData = null;
         }
     }
