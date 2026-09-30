@@ -4,6 +4,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [SerializeField] private UiController uiController;
+
     [Header("UI Fin de Partida")]
     [SerializeField] private GameObject victoryScreen;
     [SerializeField] private GameObject gameOverScreen;
@@ -36,13 +38,13 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.StopMusic();
 
-        gameOverScreen.SetActive(true);
+        uiController.ShowGameOver();
     }
 
     private void TriggerVictory()
     {
         SetPlayerControls(false);
-        victoryScreen.SetActive(true);
+        uiController.ShowVictory();
     }
 
     public void SetPlayerControls(bool state)
