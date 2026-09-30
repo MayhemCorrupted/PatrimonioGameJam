@@ -15,3 +15,5 @@ MonoBehaviour:
   id: 4
   itemName: partitura
   icon: {fileID: 323727063, guid: cf8a13cd54e686a4a9a44389ef7be707, type: 3}
+  objectTrack: {fileID: 8300000, guid: 0702ef268d1fa12418e7b933016496d4, type: 3}
+  pingSound: {fileID: 0}

@@ -15,3 +15,5 @@ MonoBehaviour:
   id: 1
   itemName: pala
   icon: {fileID: -789453492, guid: ab0b85689e1f9ea47b5198aa0e953553, type: 3}
+  objectTrack: {fileID: 8300000, guid: bb18e14dd8a29bb469974059aca615b3, type: 3}
+  pingSound: {fileID: 0}

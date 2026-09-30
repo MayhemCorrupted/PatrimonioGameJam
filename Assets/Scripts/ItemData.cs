@@ -9,5 +9,5 @@ public class ItemData : ScriptableObject
 
     [Header("Audio (Gestor Musical)")]
     public AudioClip objectTrack;
-    public AudioClip pingSound;
+    public AudioClip pingSound; 
 }

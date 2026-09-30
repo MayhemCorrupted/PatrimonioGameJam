@@ -15,3 +15,5 @@ MonoBehaviour:
   id: 2
   itemName: moneda
   icon: {fileID: 1325341897, guid: a734ab7a4e2f61747a62b4ba2a7cf18d, type: 3}
+  objectTrack: {fileID: 8300000, guid: 03db06dc0dedbf840a82affb8ed3a367, type: 3}
+  pingSound: {fileID: 0}
